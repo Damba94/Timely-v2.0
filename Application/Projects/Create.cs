@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities;
+using FluentValidation;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,13 @@ namespace Application.Projects
         public class Command : IRequest
         {
             public Project Project { get; set; }    
+        }
+        public class CommandValidetor : AbstractValidator<Command>
+        {
+            public CommandValidetor()
+            {
+                RuleFor(X => X.Project).SetValidator(new ProjectValidator());
+            }
         }
         public class Handler : IRequestHandler<Command>
         {
