@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Application.Core;
+using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
@@ -12,7 +13,7 @@ namespace Application.Projects
 {
     public class Create
     {
-        public class Command : IRequest
+        public class Command : IRequest<Result<Unit>>
         {
             public Project Project { get; set; }    
         }
@@ -22,21 +23,22 @@ namespace Application.Projects
             {
                 RuleFor(X => X.Project).SetValidator(new ProjectValidator());
             }
-        }
-        public class Handler : IRequestHandler<Command>
+        } 
+        public class Handler : IRequestHandler<Command,Result<Unit>>
         {
             private readonly TimelyContext _context;
-            private readonly IMapper _mapper;
+ 
             public Handler(TimelyContext context,IMapper mapper)
             {
                 _context = context;
-                _mapper = mapper;   
+   
             }
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 _context.Projects.Add(request.Project); 
-                await _context.SaveChangesAsync();
-                return Unit.Value;
+                var result=await _context.SaveChangesAsync()>0;
+                if (!result) return Result<Unit>.Failure("Failed to create Project");
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }
