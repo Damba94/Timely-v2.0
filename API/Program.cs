@@ -2,8 +2,10 @@
 using API.Extensions;
 using API.Middleware;
 using Application.Core;
+using Application.Interfaces;
 using Application.Projects;
 using FluentValidation.AspNetCore;
+using Infrastructure.Security;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -32,6 +34,7 @@ builder.Services.AddDbContext<TimelyContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddMediatR(typeof(List.Handler).Assembly);
 builder.Services.AddAutoMapper(typeof(MAppingProfiles).Assembly);
+builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 
 var app = builder.Build();
 
